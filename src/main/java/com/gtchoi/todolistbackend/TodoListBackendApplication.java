@@ -6,7 +6,7 @@ import org.hibernate.service.ServiceRegistry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.gtchoi.todolistbackend")
 public class TodoListBackendApplication {
 
 	public static void main(String[] args) {

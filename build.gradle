@@ -16,6 +16,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '3.1.0.RELEASE'
 	runtime('com.h2database:h2')
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
