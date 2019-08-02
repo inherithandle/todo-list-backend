@@ -1,8 +1,10 @@
 package com.gtchoi.todolistbackend.service;
 
 import com.gtchoi.todolistbackend.entity.User;
+import com.gtchoi.todolistbackend.entity.UserToken;
 import com.gtchoi.todolistbackend.model.LoginResponse;
 import com.gtchoi.todolistbackend.repository.UserRepository;
+import com.gtchoi.todolistbackend.repository.UserTokenRepository;
 import com.gtchoi.todolistbackend.util.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +20,10 @@ public class AccountService {
     @Autowired
     UserRepository userRepository;
 
-    @Transactional(readOnly = true)
+    @Autowired
+    UserTokenRepository userTokenRepository;
+
+    @Transactional
     public LoginResponse login(String userId, String password) {
         User user = userRepository.findByUserId(userId);
         LoginResponse loginResponse = new LoginResponse();
@@ -26,21 +31,32 @@ public class AccountService {
             loginResponse.setLogin(false);
             loginResponse.setMessage("User credentials are not valid."); // TODO: i18n
         } else {
+            String accessToken = RandomUtil.generateString();
+            UserToken userToken = new UserToken(accessToken, user);
+            userToken.setAccessToken(accessToken);
+            userToken.setUser(user);
+
+            userTokenRepository.save(userToken);
+
             loginResponse.setLogin(true);
             loginResponse.setMessage("logined. check out the access token");
-            loginResponse.setAccessToken(RandomUtil.generateString());
+            loginResponse.setAccessToken(accessToken);
         }
         return loginResponse;
     }
 
     public LoginResponse isValidAccessToken(String accessToken) {
-        // TODO: access token을 DB에서 검증. 유효하면, true, 아니면 false
         LoginResponse loginResponse = new LoginResponse();
-        if (accessToken.length() > 0) {
-            loginResponse.setLogin(true);
+        UserToken userToken = userTokenRepository.findById(accessToken).orElse(null);
+
+        if (userToken == null) {
+            loginResponse.setMessage("fail");
+            return loginResponse;
         }
+
+        loginResponse.setLogin(true);
         loginResponse.setMessage("success");
-        loginResponse.setUserId("MOCK USER NAME"); // TODO
+        loginResponse.setUserId(userToken.getUser().getUserId());
         loginResponse.setAccessToken(accessToken);
         return loginResponse;
     }

@@ -1,6 +1,7 @@
 package com.gtchoi.todolistbackend.repository;
 
 import com.gtchoi.todolistbackend.entity.Project;
+import com.gtchoi.todolistbackend.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Modifying
     @Query("delete from project p where p.projectNo = :projectNo")
     int deleteProjectByProjectNo(@Param("projectNo") long projectNo);
+
+    List<Project> findByUser(User user);
 }

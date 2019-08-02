@@ -1,8 +1,10 @@
 package com.gtchoi.todolistbackend.service;
 
 import com.gtchoi.todolistbackend.entity.User;
+import com.gtchoi.todolistbackend.entity.UserToken;
 import com.gtchoi.todolistbackend.model.LoginResponse;
 import com.gtchoi.todolistbackend.repository.UserRepository;
+import com.gtchoi.todolistbackend.repository.UserTokenRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -23,11 +27,16 @@ public class AccountServiceTest {
     @MockBean
     UserRepository userRepository;
 
+    @MockBean
+    UserTokenRepository userTokenRepository;
+
     @Autowired
     AccountService accountService;
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    final String ACCESS_TOKEN = "abc";
 
     private User getUser() {
         final String userId = "gyutaechoi";
@@ -37,6 +46,10 @@ public class AccountServiceTest {
         user.setUserId(userId);
         user.setPassword(encrypted);
         return user;
+    }
+
+    private UserToken getUserToken() {
+        return new UserToken(ACCESS_TOKEN, getUser());
     }
 
     @Test
@@ -79,19 +92,19 @@ public class AccountServiceTest {
 
     @Test
     public void validAccessToken() {
-        final String accessToken = "abc";
-        LoginResponse loginResponse = accountService.isValidAccessToken(accessToken);
+        given(userTokenRepository.findById(ACCESS_TOKEN)).willReturn(Optional.of(getUserToken()));
+        LoginResponse loginResponse = accountService.isValidAccessToken(ACCESS_TOKEN);
 
         assertThat(loginResponse.getMessage(), is("success"));
-        assertThat(loginResponse.getAccessToken(), is(accessToken));
+        assertThat(loginResponse.getAccessToken(), is(ACCESS_TOKEN));
         assertThat(loginResponse.isLogin(), is(true));
     }
 
     @Test
     public void invalidAccessToken() {
-        // TODO : 현재 실패.
-        final String accessToken = "abc";
-        LoginResponse loginResponse = accountService.isValidAccessToken(accessToken);
+        final String wrongAccessToken = "wrong-access-token";
+        given(userTokenRepository.findById(wrongAccessToken)).willReturn(Optional.empty());
+        LoginResponse loginResponse = accountService.isValidAccessToken(wrongAccessToken);
 
         assertThat(loginResponse.getAccessToken(), is(nullValue()));
         assertThat(loginResponse.isLogin(), is(false));
