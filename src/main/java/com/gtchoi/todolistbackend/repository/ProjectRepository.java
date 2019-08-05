@@ -21,9 +21,12 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("SELECT DISTINCT p FROM project p left join fetch p.todos WHERE p.user.userNo = :userNo")
     List<Project> findByUserNo(@Param("userNo") long userNo);
 
+    @Query("SELECT p FROM project p WHERE p.user.userNo = :userNo and p.projectNo = :projectNo")
+    Project findByProjectNoAndUserNo(@Param("projectNo") Long projectNo, @Param("userNo") long userNo);
+
     @Modifying
-    @Query("delete from project p where p.projectNo = :projectNo")
-    int deleteProjectByProjectNo(@Param("projectNo") long projectNo);
+    @Query("delete from project p where p.projectNo = :projectNo and p.user.userNo = :userNo")
+    int deleteProjectByProjectNo(@Param("projectNo") long projectNo, @Param("userNo") long userNo);
 
     List<Project> findByUser(User user);
 }

@@ -4,6 +4,8 @@ import com.gtchoi.todolistbackend.entity.User;
 import com.gtchoi.todolistbackend.entity.UserToken;
 import com.gtchoi.todolistbackend.exception.UnAuthorizedException;
 import com.gtchoi.todolistbackend.repository.UserTokenRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,8 @@ import java.util.Optional;
 
 @Component
 public class UserAccessTokenArgumentResolver implements HandlerMethodArgumentResolver {
+
+    Logger logger = LoggerFactory.getLogger(UserAccessTokenArgumentResolver.class);
 
     @Autowired
     UserTokenRepository userTokenRepository;
@@ -37,15 +41,20 @@ public class UserAccessTokenArgumentResolver implements HandlerMethodArgumentRes
         }
 
         Optional<UserToken> userToken = userTokenRepository.findById(accessToken.getValue());
-        userToken.orElseThrow(() -> new UnAuthorizedException());
+        userToken.orElseThrow(() -> {
+            logger.debug("token {} is not found in database.", accessToken.getValue());
+            return new UnAuthorizedException();
+        });
 
         return userToken.get().getUser();
     }
 
     private Cookie getAccessTokenCookie(Cookie[] cookies) {
         if (cookies == null) {
+            logger.debug("client not sending any cookies.");
             return null;
         }
+
 
         for (Cookie cookie : cookies) {
             if ("access-token".equals(cookie.getName())) {
@@ -53,6 +62,8 @@ public class UserAccessTokenArgumentResolver implements HandlerMethodArgumentRes
             }
         }
 
+        logger.debug("access-token cookie not found");
         return null;
     }
+
 }

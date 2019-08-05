@@ -15,17 +15,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -106,5 +110,48 @@ public class ProjectControllerTest {
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.message").value(UnAuthorizedException.MESSAGE));
     }
+
+    @Test
+    public void addProject() throws Exception {
+        String jsonString = "{" +
+                "\"projectName\": \"inbox\"," +
+                "\"todos\": null" +
+                "}";
+
+        Project project = new Project();
+        project.setProjectName("inbox");
+        final Cookie cookie = new Cookie("access-token", "access");
+        given(userTokenRepository.findById("access")).willReturn(Optional.of(new UserToken()));
+        given(projectService.addProject(any(), any())).willReturn(project);
+
+        MvcResult mvcResult = mockMvc.perform(post("/project").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(jsonString)
+                .cookie(cookie))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.projectName").value("inbox"))
+                .andReturn();
+
+        System.out.println("status: " + mvcResult.getResponse().getStatus());
+        System.out.println("body : " + mvcResult.getRequest().getContentAsString());
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void modifyProject() throws Exception {
+        final Cookie cookie = new Cookie("access-token", "access");
+        given(userTokenRepository.findById("access")).willReturn(Optional.of(new UserToken()));
+        willThrow(new NoSuchElementException())
+                .given(projectService).modifyProject(any(), any());
+
+        MvcResult mvcResult = mockMvc.perform(put("/project").contentType(MediaType.APPLICATION_JSON)
+                .cookie(cookie))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getStatus());
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+
 
 }

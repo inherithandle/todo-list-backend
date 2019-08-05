@@ -1,8 +1,10 @@
 package com.gtchoi.todolistbackend.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,9 +18,16 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private UserAccessTokenArgumentResolver userAccessTokenArgumentResolver;
 
+    @Value("#{'${allowed.origins}'.split(',')}")
+    private String[] allowedOrigins;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**");
+        assert allowedOrigins[0].equals("http://localhost:8080");
+        CorsRegistration corsRegistration = registry.addMapping("/**");
+        corsRegistration.allowedOrigins(allowedOrigins);
+        corsRegistration.allowedMethods("*");
+        corsRegistration.allowCredentials(true);
     }
 
     @Override
