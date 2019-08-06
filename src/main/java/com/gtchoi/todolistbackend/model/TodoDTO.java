@@ -6,6 +6,10 @@ public class TodoDTO {
 
     private boolean completed;
 
+    private Long id;
+
+    private Long projectNo;
+
     public String getText() {
         return text;
     }
@@ -20,5 +24,21 @@ public class TodoDTO {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public Long getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(Long projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

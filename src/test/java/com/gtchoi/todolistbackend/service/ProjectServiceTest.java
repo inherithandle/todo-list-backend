@@ -117,7 +117,7 @@ public class ProjectServiceTest {
         givenUserAndProject();
         ProjectDTO projectDTO = modelMapper.map(this.project, ProjectDTO.class);
 
-        int numOfDeleted = projectService.deleteProject(projectDTO, this.user);
+        int numOfDeleted = projectService.deleteProject(projectDTO.getProjectNo(), this.user);
         assertThat(numOfDeleted, is(1));
     }
 
@@ -127,17 +127,19 @@ public class ProjectServiceTest {
         ProjectDTO projectDTO = modelMapper.map(this.project, ProjectDTO.class);
         projectDTO.setProjectNo(2394732L);
 
-        projectService.deleteProject(projectDTO, this.user);
+        projectService.deleteProject(projectDTO.getProjectNo(), this.user);
     }
 
     @Test(expected = NoSuchElementException.class)
     public void deleteProjectUserNotFound() {
         givenUserAndProject();
         givenAnotherUser();
+
+
         ProjectDTO projectDTO = modelMapper.map(this.project, ProjectDTO.class);
         assertThat(this.project.getUser().getUserNo(), is(not(this.user2.getUserNo())));
 
-        projectService.deleteProject(projectDTO, user2);
+        projectService.deleteProject(projectDTO.getProjectNo(), user2);
     }
 
     @Test

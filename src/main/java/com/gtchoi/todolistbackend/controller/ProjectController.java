@@ -43,8 +43,6 @@ public class ProjectController {
 
     @PutMapping("/project")
     public ResponseEntity<?> makeChangeToProject(User user, @RequestBody ProjectDTO projectDTO) {
-        logger.debug("Project DTO");
-        logger.debug(projectDTO.getProjectName());
         projectService.modifyProject(projectDTO, user);
         return ResponseEntity.noContent().build();
     }

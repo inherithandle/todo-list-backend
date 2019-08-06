@@ -12,7 +12,9 @@ import org.springframework.data.repository.query.Param;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
     @Modifying
-    @Query("delete from todo t where t.project.projectNo = :projectNo")
-    int deleteTodosByProjectNo(@Param("projectNo") long projectNo);
+    @Query("delete from todo t where t.id = :id")
+    int deleteTodoById(@Param("id") long id);
 
+    @Query("SELECT t FROM todo t join fetch t.project p join fetch p.user where t.id = :id and p.user.userNo = :userNo")
+    Todo findByTodoIdAndUser(@Param("id") Long id, @Param("userNo") Long userNo);
 }
