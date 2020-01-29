@@ -1,5 +1,7 @@
 package com.gtchoi.todolistbackend.model;
 
+import java.time.LocalDateTime;
+
 public class TodoDTO {
 
     private String text;
@@ -9,6 +11,8 @@ public class TodoDTO {
     private Long id;
 
     private Long projectNo;
+
+    private LocalDateTime dueDate;
 
     public String getText() {
         return text;
@@ -40,5 +44,17 @@ public class TodoDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDueDate() {
+        return dueDate.toString();
+    }
+
+    public LocalDateTime getLocalDateTimeDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 }

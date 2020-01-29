@@ -1,6 +1,7 @@
 package com.gtchoi.todolistbackend.entity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ public class User {
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Project> projects;
+    private String email;
 
     public Long getUserNo() {
         return userNo;
@@ -47,5 +49,25 @@ public class User {
 
     public void setProjects(List<Project> projects) {
         this.projects = projects;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setDefaultProject(EntityManager em) {
+        if (!em.contains(this)) { // make sure this object in not managed by JPA provider.
+            List<Project> projects = new ArrayList<>();
+            Project project = new Project();
+            projects.add(project);
+
+            project.setProjectName("inbox");
+            project.setUser(this);
+            this.setProjects(projects);
+        }
     }
 }

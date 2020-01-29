@@ -50,6 +50,7 @@ public class TodoService {
         }
         todo.setText(todoDTO.getText());
         todo.setCompleted(todoDTO.isCompleted());
+        todo.setDueDate(todoDTO.getLocalDateTimeDueDate());
     }
 
     @Transactional

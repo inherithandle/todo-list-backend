@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,6 +51,7 @@ public class TodoControllerTest {
 
     private void givenNewTodoJsonString() throws JSONException {
         JSONObject builder = new JSONObject();
+        builder.put("dueDate", "2019-12-31T23:59:59.999999999");
         this.todoJson = builder.put("text", "a new todo").toString();
     }
 
@@ -59,6 +61,18 @@ public class TodoControllerTest {
         this.user = new User();
         userToken.setUser(this.user);
         given(userTokenRepository.findById("access")).willReturn(Optional.of(userToken));
+    }
+
+    @Test
+    public void modifyDueDate() throws Exception {
+        givenTokenAndUserAndCookie();
+        givenNewTodoJsonString();
+
+        MvcResult mvcResult = mockMvc.perform(put("/todo").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(this.todoJson)
+                .cookie(cookie))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
     }
 
     @Test

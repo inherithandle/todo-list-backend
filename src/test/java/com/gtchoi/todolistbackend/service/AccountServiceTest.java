@@ -1,34 +1,57 @@
 package com.gtchoi.todolistbackend.service;
 
+import com.gtchoi.todolistbackend.config.RestTemplateConfiguration;
 import com.gtchoi.todolistbackend.entity.User;
 import com.gtchoi.todolistbackend.entity.UserToken;
+import com.gtchoi.todolistbackend.enums.TokenType;
 import com.gtchoi.todolistbackend.model.LoginResponse;
 import com.gtchoi.todolistbackend.repository.UserRepository;
 import com.gtchoi.todolistbackend.repository.UserTokenRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@Import(NecessaryBeanConfig.class)
+@Import(value = {NecessaryBeanConfig.class, RestTemplateConfiguration.class})
 public class AccountServiceTest {
+
+    @TestConfiguration
+    static class ThisConfig {
+        @Bean
+        public AccountService accountService() {
+            return new AccountService();
+        }
+
+        @Bean
+        public GoogleSigninService googleSigninService() {
+            return new GoogleSigninService();
+        }
+    }
 
     @MockBean
     UserRepository userRepository;
 
     @MockBean
     UserTokenRepository userTokenRepository;
+
+    @MockBean
+    ModelMapper modelMapper;
 
     @Autowired
     AccountService accountService;
@@ -37,6 +60,11 @@ public class AccountServiceTest {
     PasswordEncoder passwordEncoder;
 
     final String ACCESS_TOKEN = "abc";
+
+    @Test
+    public void isNotNull() {
+        assertThat(accountService, is(notNullValue()));
+    }
 
     private User getUser() {
         final String userId = "gyutaechoi";
@@ -110,7 +138,14 @@ public class AccountServiceTest {
         assertThat(loginResponse.isLogin(), is(false));
     }
 
+    @Test(expected = ConstraintViolationException.class)
+    public void methodValidator() {
+        accountService.login("1abcddd", "adsfadfadf");
+    }
 
-
-
+    @Test
+    public void loginWithThirdParty() {
+        final String authCode = "4/vwF1-wOWowwgLZ2lsLWTGSYNHW1P6lPl5OKyKEhbVRHQbINWZc-G7uDBxc41KhJNsFLzGeN_boDf9tG1AfMT7ro";
+        accountService.loginWithThirdParty(TokenType.GOOGLE, authCode);
+    }
 }

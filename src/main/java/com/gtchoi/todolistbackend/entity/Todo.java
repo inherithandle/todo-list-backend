@@ -3,6 +3,7 @@ package com.gtchoi.todolistbackend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * Created by hello on 20/08/2018.
@@ -22,6 +23,9 @@ public class Todo {
     private Project project;
 
     private boolean completed;
+
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime dueDate;
 
     // due date
     // register date
@@ -57,5 +61,13 @@ public class Todo {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 }

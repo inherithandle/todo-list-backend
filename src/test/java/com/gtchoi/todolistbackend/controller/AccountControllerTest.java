@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 import java.util.Optional;
@@ -111,5 +112,73 @@ public class AccountControllerTest {
     public void userDoesntHaveAccessTokenInCookie() throws Exception {
         mockMvc.perform(get("/token"))
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void signupValidationSuccess() throws Exception {
+        JSONObject jsonBuilder = new JSONObject();
+        jsonBuilder.put("userId", "joma");
+        jsonBuilder.put("password", "jomajoma");
+        jsonBuilder.put("confirmPassword", "jomajoma");
+
+        MvcResult mvcResult = mockMvc.perform(post("/signup")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(jsonBuilder.toString()))
+                .andExpect(status().isOk()).andReturn();
+
+        System.out.println(mvcResult.getRequest().getHeader("Accept"));
+        System.out.println(mvcResult.getResponse().getContentAsString());
+
+    }
+
+    @Test
+    public void missingJsonHeader() throws Exception {
+        JSONObject jsonBuilder = new JSONObject();
+        jsonBuilder.put("userId", "joma");
+        jsonBuilder.put("password", "jomajoma");
+        jsonBuilder.put("confirmPassword", "jomajoma");
+
+        mockMvc.perform(post("/signup")
+                .content(jsonBuilder.toString()))
+                .andExpect(status().isUnsupportedMediaType()).andReturn();
+    }
+
+    @Test
+    public void singupIdValidationFailed() throws Exception {
+        JSONObject jsonBuilder = new JSONObject();
+        jsonBuilder.put("userId", "jo");
+        jsonBuilder.put("password", "jomajoma");
+        jsonBuilder.put("confirmPassword", "jomajoma");
+
+        mockMvc.perform(post("/signup")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(jsonBuilder.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void singupIdValidationFailed2() throws Exception {
+        JSONObject jsonBuilder = new JSONObject();
+        jsonBuilder.put("userId", "1joma");
+        jsonBuilder.put("password", "jomajoma");
+        jsonBuilder.put("confirmPassword", "jomajoma");
+
+        mockMvc.perform(post("/signup")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(jsonBuilder.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void passwordsNotMatch() throws Exception {
+        JSONObject jsonBuilder = new JSONObject();
+        jsonBuilder.put("userId", "joma");
+        jsonBuilder.put("password", "jomajoma");
+        jsonBuilder.put("confirmPassword", "1234");
+
+        mockMvc.perform(post("/signup")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(jsonBuilder.toString()))
+                .andExpect(status().isBadRequest());
     }
 }
