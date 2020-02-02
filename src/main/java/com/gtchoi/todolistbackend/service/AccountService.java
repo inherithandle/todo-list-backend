@@ -3,6 +3,7 @@ package com.gtchoi.todolistbackend.service;
 import com.gtchoi.todolistbackend.entity.User;
 import com.gtchoi.todolistbackend.entity.UserToken;
 import com.gtchoi.todolistbackend.enums.TokenType;
+import com.gtchoi.todolistbackend.exception.UnAuthorizedException;
 import com.gtchoi.todolistbackend.model.DuplicateIdResponse;
 import com.gtchoi.todolistbackend.model.LoginResponse;
 import com.gtchoi.todolistbackend.model.SignUpDTO;
@@ -153,5 +154,15 @@ public class AccountService {
             duplicateIdResponse.setDuplicate(true);
         }
         return duplicateIdResponse;
+    }
+
+    @Transactional
+    public void deleteToken(User user, String accessToken) {
+        UserToken userToken = userTokenRepository.findByAccessToken(accessToken).orElseThrow(UnAuthorizedException::new);
+        if (userToken.getUser().getUserNo() == user.getUserNo()) {
+            userTokenRepository.delete(userToken);
+        } else {
+            throw new UnAuthorizedException();
+        }
     }
 }

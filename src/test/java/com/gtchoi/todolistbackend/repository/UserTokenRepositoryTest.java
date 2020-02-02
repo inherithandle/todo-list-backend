@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Optional;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -51,5 +53,11 @@ public class UserTokenRepositoryTest {
         assertThat(userToken.getUser().getUserId(), is(USER_ID));
         assertThat(userToken.getUser().getPassword(), is(PASSWORD));
         assertThat(userToken.getAccessToken(), is(ACCESS_TOKEN));
+    }
+
+    @Test
+    public void fidnByTokenJoinFecth() {
+        Optional<UserToken> userToken = userTokenRepository.findByAccessToken(ACCESS_TOKEN);
+        assertThat(userToken.get().getUser().getUserId(), is(USER_ID));
     }
 }

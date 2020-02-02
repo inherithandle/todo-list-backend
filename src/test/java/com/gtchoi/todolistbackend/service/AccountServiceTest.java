@@ -4,6 +4,7 @@ import com.gtchoi.todolistbackend.config.RestTemplateConfiguration;
 import com.gtchoi.todolistbackend.entity.User;
 import com.gtchoi.todolistbackend.entity.UserToken;
 import com.gtchoi.todolistbackend.enums.TokenType;
+import com.gtchoi.todolistbackend.exception.UnAuthorizedException;
 import com.gtchoi.todolistbackend.model.LoginResponse;
 import com.gtchoi.todolistbackend.repository.UserRepository;
 import com.gtchoi.todolistbackend.repository.UserTokenRepository;
@@ -18,6 +19,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 
@@ -26,6 +29,8 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @Import(value = {NecessaryBeanConfig.class, RestTemplateConfiguration.class})
@@ -52,6 +57,12 @@ public class AccountServiceTest {
 
     @MockBean
     ModelMapper modelMapper;
+
+    @MockBean
+    EntityManager em;
+
+    @MockBean
+    EntityManagerFactory emf;
 
     @Autowired
     AccountService accountService;
@@ -147,5 +158,51 @@ public class AccountServiceTest {
     public void loginWithThirdParty() {
         final String authCode = "4/vwF1-wOWowwgLZ2lsLWTGSYNHW1P6lPl5OKyKEhbVRHQbINWZc-G7uDBxc41KhJNsFLzGeN_boDf9tG1AfMT7ro";
         accountService.loginWithThirdParty(TokenType.GOOGLE, authCode);
+    }
+
+    @Test
+    public void deleteToken() {
+        final User user = new User();
+        user.setUserId("test-id");
+        user.setUserNo(1L);
+
+        final UserToken userToken = new UserToken();
+        final String accessToken = "access-token";
+        userToken.setUser(user);
+        userToken.setAccessToken(accessToken);
+
+        Optional<UserToken> optionalUserToken = Optional.of(userToken);
+        given(userTokenRepository.findByAccessToken(accessToken)).willReturn(optionalUserToken);
+
+        accountService.deleteToken(user, accessToken);
+        verify(userTokenRepository, times(1)).findByAccessToken(accessToken);
+        verify(userTokenRepository, times(1)).delete(userToken);
+    }
+
+    @Test(expected = UnAuthorizedException.class)
+    public void deleteTokenFromUnAuthorizedUser() {
+        final User user = new User();
+        user.setUserId("test-id");
+        user.setUserNo(1L);
+
+        final User user2 = new User();
+        user.setUserId("test-id2");
+        user.setUserNo(2L);
+
+        final UserToken userToken = new UserToken();
+        final String accessToken = "access-token";
+        userToken.setUser(user);
+        userToken.setAccessToken(accessToken);
+
+        final UserToken userToken2 = new UserToken();
+        final String accessToken2 = "access-token2";
+        userToken2.setUser(user2);
+        userToken2.setAccessToken(accessToken2);
+
+        Optional<UserToken> optionalUserToken = Optional.of(userToken);
+        given(userTokenRepository.findByAccessToken(accessToken)).willReturn(optionalUserToken);
+
+        accountService.deleteToken(user2, accessToken);
+        verify(userTokenRepository, times(1)).findByAccessToken(accessToken);
     }
 }
