@@ -15,7 +15,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-@TestPropertySource(value = {"classpath:application.properties", "classpath:application-private.properties"})
+@TestPropertySource(value = {"classpath:application.properties"})
 public class AccessToPropertyTest {
 
     @Value("${google.oauth.client-id}")
