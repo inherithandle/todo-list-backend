@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProfile name="prod">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+        <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="local">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+        <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" />
+        <logger name="org.springframework.core.codec" level="DEBUG"/>
+        <logger name="org.springframework.http" level="DEBUG"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+
+        <logger name="org.springframework.jdbc.core" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="com.gtchoi.todolistbackend" level="DEBUG"/>
+
+        <root level="OFF">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+</configuration>
