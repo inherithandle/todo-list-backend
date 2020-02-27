@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,6 +21,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.servlet.http.Cookie;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -180,5 +183,33 @@ public class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(jsonBuilder.toString()))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void 유효하지않은토큰_401_응답() throws Exception {
+        final String bearerToken = "bad-access-token";
+
+        given(userTokenRepository.findById(bearerToken)).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/token")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void 유효토큰_200_OK() throws Exception {
+        final String bearerToken = "access-token";
+        UserToken mockUserToken = new UserToken();
+        mockUserToken.setUser(new User());
+        given(userTokenRepository.findById(bearerToken)).willReturn(Optional.of(mockUserToken));
+
+        mockMvc.perform(get("/token")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getBearer() {
+        assertThat("bearer access-token".substring(7), is("access-token"));
     }
 }
