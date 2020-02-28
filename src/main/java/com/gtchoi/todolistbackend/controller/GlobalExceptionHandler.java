@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
@@ -35,7 +36,17 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(value = { NoSuchElementException.class, EntityNotFoundException.class })
+    @ExceptionHandler(HttpClientErrorException.BadRequest.class)
+    public @ResponseBody ErrorResponse processHttpClientBadRequestException(Exception e) {
+        HttpClientErrorException.BadRequest ex = (HttpClientErrorException.BadRequest) e;
+        logger.debug("status text: {}, message: {}", ex.getStatusText(), ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setMessage(e.getMessage());
+        return errorResponse;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = { NoSuchElementException.class, EntityNotFoundException.class})
     public @ResponseBody ErrorResponse notFoundException() {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setMessage("requested data not found on database.");

@@ -2,6 +2,7 @@ package com.gtchoi.todolistbackend.controller;
 
 import com.gtchoi.todolistbackend.entity.User;
 import com.gtchoi.todolistbackend.entity.UserToken;
+import com.gtchoi.todolistbackend.enums.TokenType;
 import com.gtchoi.todolistbackend.model.LoginResponse;
 import com.gtchoi.todolistbackend.repository.UserTokenRepository;
 import com.gtchoi.todolistbackend.service.AccountService;
@@ -13,12 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.Cookie;
+import java.nio.charset.Charset;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
@@ -211,5 +215,22 @@ public class AccountControllerTest {
     @Test
     public void getBearer() {
         assertThat("bearer access-token".substring(7), is("access-token"));
+    }
+
+    @Test
+    public void 유효하지않은_구글_auth_code_400_응답() throws Exception {
+        final String mockAuthCode = "mock-auth-code";
+        JSONObject jsonBuilder = new JSONObject();
+        jsonBuilder.put("authorizationCode", mockAuthCode);
+        jsonBuilder.put("tokenType", "GOOGLE");
+
+
+        given(accountService.loginWithThirdParty(TokenType.GOOGLE, mockAuthCode)).willThrow(
+                HttpClientErrorException.BadRequest.create(HttpStatus.BAD_REQUEST, "hello", null, null, Charset.defaultCharset())
+        );
+        mockMvc.perform(post("/login-with-third-party")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(jsonBuilder.toString()))
+                .andExpect(status().isBadRequest());
     }
 }

@@ -56,7 +56,7 @@ public class UserTokenRepositoryTest {
     }
 
     @Test
-    public void fidnByTokenJoinFecth() {
+    public void findByTokenJoinFecth() {
         Optional<UserToken> userToken = userTokenRepository.findByAccessToken(ACCESS_TOKEN);
         assertThat(userToken.get().getUser().getUserId(), is(USER_ID));
     }
