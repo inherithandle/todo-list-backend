@@ -36,10 +36,12 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(HttpClientErrorException.BadRequest.class)
+    @ExceptionHandler(HttpClientErrorException.class)
     public @ResponseBody ErrorResponse processHttpClientBadRequestException(Exception e) {
-        HttpClientErrorException.BadRequest ex = (HttpClientErrorException.BadRequest) e;
+        HttpClientErrorException ex = (HttpClientErrorException) e;
         logger.debug("status text: {}, message: {}", ex.getStatusText(), ex.getMessage());
+        logger.debug("response body: {}", ex.getResponseBodyAsString());
+        logger.debug("stack trace: {}", ex.getStackTrace());
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setMessage(e.getMessage());
         return errorResponse;

@@ -43,7 +43,7 @@ public class AccountService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @Autowired(required = false)
     private GoogleSigninService googleSigninService;
 
     @PersistenceContext
