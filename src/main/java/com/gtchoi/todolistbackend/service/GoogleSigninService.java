@@ -1,13 +1,12 @@
 package com.gtchoi.todolistbackend.service;
 
-import com.gtchoi.todolistbackend.condition.GoogleSigninCondition;
 import com.gtchoi.todolistbackend.model.GoogleTokenResponse;
 import com.gtchoi.todolistbackend.model.GoogleUserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,8 +16,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @Service
-@Conditional(GoogleSigninCondition.class)
-public class GoogleSigninService {
+@Profile("oauth")
+public class GoogleSigninService implements ThirdPartySigninService {
 
     private static final String AUTH_CODE_ENDPOINT = "https://oauth2.googleapis.com/token";
     private static final String USER_INFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo";
@@ -46,7 +45,8 @@ public class GoogleSigninService {
     @Autowired
     RestTemplate restTemplate;
 
-    public String getGoogleEmail(String authorizationCode) {
+    @Override
+    public String getEmail(String authorizationCode) {
         GoogleTokenResponse googleTokenResponse = callAuthCodeEndpoint(authorizationCode);
         GoogleUserResponse googleUserResponse = callUserInfoEndpoint(googleTokenResponse.getAccessToken());
         return googleUserResponse.getEmail();

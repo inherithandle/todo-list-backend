@@ -46,10 +46,13 @@ public class AccountService {
     @Autowired(required = false)
     private GoogleSigninService googleSigninService;
 
+    @Autowired
+    private SigninServiceFactory signinServiceFactory;
+
     @PersistenceContext
     private EntityManager em;
 
-    Logger logger = LoggerFactory.getLogger(AccountService.class);
+    private Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     @Transactional
     public LoginResponse login(@NotBlank
@@ -114,13 +117,8 @@ public class AccountService {
 
     @Transactional
     public LoginResponse loginWithThirdParty(TokenType tokenType, String authorizationCode) {
-        String email = null;
-        if (tokenType == TokenType.GOOGLE) {
-            email = googleSigninService.getGoogleEmail(authorizationCode);
-        } else if (tokenType == TokenType.NAVER) {
-            email = "mock-id@naver.com";
-        }
-
+        ThirdPartySigninService signinService = signinServiceFactory.getSigninService(tokenType);
+        String email = signinService.getEmail(authorizationCode);
         User user = userRepository.findByEmail(email);
         if (user == null) {
             user = signupWithThirdPartyAccount(email);

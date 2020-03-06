@@ -73,7 +73,7 @@ public class GoogleSigninServiceTest {
     @Test
     public void getGoogleEmail() {
         final String AUTH_CODE = "4/vwFeud87yx3XWfIIqmhMu_5tDAY4ShTcG5AmtsDXUWYM75zzM5_3jeqkwiAenAK_uCrlLZWKgS-mLRNqjIKEQ-U";
-        String googleEmail = googleSigninService.getGoogleEmail(AUTH_CODE);
+        String googleEmail = googleSigninService.getEmail(AUTH_CODE);
 
         assertThat(googleEmail, is("inherithandle@gmail.com"));
     }

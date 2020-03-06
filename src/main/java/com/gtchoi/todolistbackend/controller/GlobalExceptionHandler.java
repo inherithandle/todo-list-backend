@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
@@ -70,7 +71,7 @@ public class GlobalExceptionHandler {
 
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(value = {NullPointerException.class, InternalServerErrorException.class})
+    @ExceptionHandler(value = {NullPointerException.class, InternalServerErrorException.class, HttpServerErrorException.class})
     public @ResponseBody ErrorResponse serverError(Exception e) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setMessage("it is not your fault. it's our fault. we're going to fix this issue soon.");
