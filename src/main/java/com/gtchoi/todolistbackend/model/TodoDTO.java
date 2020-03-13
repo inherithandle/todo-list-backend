@@ -1,7 +1,10 @@
 package com.gtchoi.todolistbackend.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDateTime;
 
+@XmlRootElement(name = "todo")
 public class TodoDTO {
 
     private String text;
@@ -14,6 +17,7 @@ public class TodoDTO {
 
     private LocalDateTime dueDate;
 
+    @XmlElement
     public String getText() {
         return text;
     }
@@ -22,6 +26,7 @@ public class TodoDTO {
         this.text = text;
     }
 
+    @XmlElement
     public boolean isCompleted() {
         return completed;
     }
@@ -30,6 +35,7 @@ public class TodoDTO {
         this.completed = completed;
     }
 
+    @XmlElement
     public Long getProjectNo() {
         return projectNo;
     }
@@ -38,6 +44,7 @@ public class TodoDTO {
         this.projectNo = projectNo;
     }
 
+    @XmlElement
     public Long getId() {
         return id;
     }
@@ -46,6 +53,7 @@ public class TodoDTO {
         this.id = id;
     }
 
+    @XmlElement
     public String getDueDate() {
         return dueDate.toString();
     }

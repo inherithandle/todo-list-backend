@@ -1,7 +1,11 @@
 package com.gtchoi.todolistbackend.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+@XmlRootElement(name = "project")
 public class ProjectDTO {
 
     private Long projectNo;
@@ -11,6 +15,7 @@ public class ProjectDTO {
     private List<TodoDTO> todos;
 
 
+    @XmlElement
     public String getProjectName() {
         return projectName;
     }
@@ -19,6 +24,7 @@ public class ProjectDTO {
         this.projectName = projectName;
     }
 
+    @XmlElementWrapper(name = "todos")
     public List<TodoDTO> getTodos() {
         return todos;
     }
@@ -27,6 +33,7 @@ public class ProjectDTO {
         this.todos = todos;
     }
 
+    @XmlElement
     public Long getProjectNo() {
         return projectNo;
     }
@@ -35,6 +42,7 @@ public class ProjectDTO {
         this.projectNo = projectNo;
     }
 
+    @XmlElement
     public boolean isSelected() {
         return selected;
     }
@@ -43,6 +51,7 @@ public class ProjectDTO {
         this.selected = selected;
     }
 
+    @XmlElement
     public boolean isEdited() {
         return edited;
     }

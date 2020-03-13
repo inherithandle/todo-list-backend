@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,7 +32,6 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 /**
  * 쿠키가 제대로 주입되었는지 확인하려고 단위 테스트 만들었는데, 다시 쿠키를 안쓰기로 해서 필요가 없어짐..
@@ -233,4 +233,22 @@ public class AccountControllerTest {
                 .content(jsonBuilder.toString()))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void hello() throws Exception {
+
+        MockHttpServletResponse response = mockMvc.perform(get("/account-test")
+                .accept(MediaType.APPLICATION_XML)).andReturn().getResponse();
+
+        System.out.println("hello xml");
+        System.out.println(response.getContentAsString());
+
+        response = mockMvc.perform(get("/account-test")
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andReturn().getResponse();
+
+
+        System.out.println("hello json");
+        System.out.println(response.getContentAsString());
+    }
+
 }

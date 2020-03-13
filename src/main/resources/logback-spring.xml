@@ -22,7 +22,7 @@
         <logger name="org.hibernate.SQL" level="DEBUG"/>
         <logger name="com.gtchoi.todolistbackend" level="DEBUG"/>
 
-        <root level="OFF">
+        <root level="ERROR">
             <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>

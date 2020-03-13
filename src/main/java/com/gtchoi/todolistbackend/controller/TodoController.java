@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class TodoController {
 
-    Logger logger = LoggerFactory.getLogger(ProjectController.class);
+    Logger logger = LoggerFactory.getLogger(TodoController.class);
 
     @Autowired
     private TodoService todoService;

@@ -1,11 +1,16 @@
 package com.gtchoi.todolistbackend.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class LoginResponse {
     private boolean login;
     private String message;
     private String accessToken;
     private String userId;
 
+    @XmlElement
     public boolean isLogin() {
         return login;
     }
@@ -14,6 +19,7 @@ public class LoginResponse {
         this.login = login;
     }
 
+    @XmlElement
     public String getMessage() {
         return message;
     }
@@ -26,10 +32,12 @@ public class LoginResponse {
         this.accessToken = accessToken;
     }
 
+    @XmlElement
     public String getAccessToken() {
         return accessToken;
     }
 
+    @XmlElement
     public String getUserId() {
         return userId;
     }

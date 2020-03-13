@@ -3,6 +3,7 @@ package com.gtchoi.todolistbackend.controller;
 import com.gtchoi.todolistbackend.entity.Project;
 import com.gtchoi.todolistbackend.entity.User;
 import com.gtchoi.todolistbackend.model.ProjectDTO;
+import com.gtchoi.todolistbackend.model.ProjectDTOList;
 import com.gtchoi.todolistbackend.service.ProjectService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -27,18 +28,20 @@ public class ProjectController {
     ModelMapper modelMapper;
 
     @GetMapping("/projects")
-    public List<ProjectDTO> getProjects(User user) {
+    public ResponseEntity<ProjectDTOList> getProjects(User user) {
         List<Project> projects = projectService.getProjects(user);
         List<ProjectDTO> dtos = projects.stream().map(project -> modelMapper.map(project, ProjectDTO.class)).collect(toList());
         dtos.get(0).setSelected(true);
-        return dtos;
+        ProjectDTOList projectDTOList = new ProjectDTOList();
+        projectDTOList.setProjects(dtos);
+        return ResponseEntity.ok(projectDTOList);
     }
 
     @PostMapping("/project")
-    public ResponseEntity<Project> addProject(User user, @RequestBody ProjectDTO projectDTO) {
-        logger.debug("project name : {}", projectDTO.getProjectName());
-        Project project = projectService.addProject(projectDTO, user);
-        return ResponseEntity.ok(project);
+    public ResponseEntity<ProjectDTO> addProject(User user, @RequestBody ProjectDTO projectDTORequest) {
+        Project project = projectService.addProject(projectDTORequest, user);
+        ProjectDTO projectDTO = modelMapper.map(project, ProjectDTO.class);
+        return ResponseEntity.ok(projectDTO);
     }
 
     @PutMapping("/project")

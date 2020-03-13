@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnAuthorizedException.class)
     public @ResponseBody ErrorResponse processUnAuthorizedException() {
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value());
         errorResponse.setMessage(UnAuthorizedException.MESSAGE);
         return errorResponse;
     }
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
         logger.debug("status text: {}, message: {}", ex.getStatusText(), ex.getMessage());
         logger.debug("response body: {}", ex.getResponseBodyAsString());
         logger.debug("stack trace: {}", ex.getStackTrace());
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value());
         errorResponse.setMessage(e.getMessage());
         return errorResponse;
     }
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = { NoSuchElementException.class, EntityNotFoundException.class})
     public @ResponseBody ErrorResponse notFoundException() {
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value());
         errorResponse.setMessage("requested data not found on database.");
         return errorResponse;
     }
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = ConstraintViolationException.class)
     public @ResponseBody ErrorResponse serverValidationException(Exception e) {
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value());
         errorResponse.setMessage("data is not valid.");
         return errorResponse;
     }
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = {NullPointerException.class, InternalServerErrorException.class, HttpServerErrorException.class})
     public @ResponseBody ErrorResponse serverError(Exception e) {
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value());
         errorResponse.setMessage("it is not your fault. it's our fault. we're going to fix this issue soon.");
         String stackTrace = ExceptionUtils.getStackTrace(e);
         logger.error(stackTrace);
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public @ResponseBody ErrorResponse jpaAssociationNotFound() {
         logger.debug("Todo를 DB에 추가할 때 Project를 찾을 수 없거나, Project를 추가할 때, User를 찾을 수 없어서 발생하는 에러.");
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value());
         errorResponse.setMessage("can't find jpa association.");
         return errorResponse;
     }
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public @ResponseBody ErrorResponse validatorFindsError(MethodArgumentNotValidException e) {
-        ErrorResponse errorResponse = new ErrorResponse();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value());
         ObjectError error = e.getBindingResult().getAllErrors().get(0);
         errorResponse.setMessage(error.getDefaultMessage());
         return errorResponse;
@@ -101,8 +101,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public @ResponseBody ErrorResponse headerNeeded() {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setMessage("Content-Type:application/json;charset=UTF-8 헤더가 필요합니다.");
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        errorResponse.setMessage("Content-Type:application/json;charset=UTF-8 for json response. Content-Type:application/xml for xml response.");
         return errorResponse;
     }
 }

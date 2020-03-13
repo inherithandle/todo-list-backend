@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -59,6 +60,7 @@ public class ProjectControllerTest {
 
     @Test
     public void getProjects() throws Exception {
+        final String accessToken = "access";
         List<Project> projects = new ArrayList<>();
         User user = new User();
         user.setUserId("joma");
@@ -78,25 +80,26 @@ public class ProjectControllerTest {
         Todo todo = new Todo();
         todo.setCompleted(false);
         todo.setText("hello world");
+        todo.setDueDate(LocalDateTime.now());
         todos.add(todo);
         project.setTodos(todos);
 
-        final Cookie cookie = new Cookie("access-token", "access");
         given(projectService.getProjects(any())).willReturn(projects);
-        given(userTokenRepository.findById("access")).willReturn(Optional.of(userToken));
+        given(userTokenRepository.findById(accessToken)).willReturn(Optional.of(userToken));
 
         mockMvc.perform(get("/projects")
-                .cookie(cookie))
+                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].projectName").value("inbox"))
-                .andExpect(jsonPath("$[0].todos[0].text").value("hello world"))
-                .andExpect(jsonPath("$[0].todos[0].completed").value("false"))
-                .andExpect(jsonPath("$[0].todos[0].completed").isBoolean());
+                .andExpect(jsonPath("$.projects[0].projectName").value("inbox"))
+                .andExpect(jsonPath("$.projects[0].todos[0].text").value("hello world"))
+                .andExpect(jsonPath("$.projects[0].todos[0].completed").value("false"))
+                .andExpect(jsonPath("$.projects[0].todos[0].completed").isBoolean());
 
     }
 
     @Test
-    public void noCookieError() throws Exception {
+    public void AuthorizationHeader_없으면_에러() throws Exception {
         mockMvc.perform(get("/projects"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.message").value(UnAuthorizedException.MESSAGE));
@@ -113,6 +116,7 @@ public class ProjectControllerTest {
 
     @Test
     public void addProject() throws Exception {
+        final String accessToken = "access";
         String jsonString = "{" +
                 "\"projectName\": \"inbox\"," +
                 "\"todos\": null" +
@@ -120,13 +124,13 @@ public class ProjectControllerTest {
 
         Project project = new Project();
         project.setProjectName("inbox");
-        final Cookie cookie = new Cookie("access-token", "access");
-        given(userTokenRepository.findById("access")).willReturn(Optional.of(new UserToken()));
+        project.setProjectNo(1L);
+        given(userTokenRepository.findById(accessToken)).willReturn(Optional.of(new UserToken()));
         given(projectService.addProject(any(), any())).willReturn(project);
 
         MvcResult mvcResult = mockMvc.perform(post("/project").contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(jsonString)
-                .cookie(cookie))
+                .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.projectName").value("inbox"))
                 .andReturn();
