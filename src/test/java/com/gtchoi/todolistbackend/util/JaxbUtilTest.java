@@ -4,6 +4,7 @@ import com.gtchoi.todolistbackend.model.*;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -53,7 +54,6 @@ public class JaxbUtilTest {
 
     @Test
     public void marshalListWrapper() throws JAXBException {
-        // ca n you
         ProjectDTOList dtoList = new ProjectDTOList();
         ProjectDTO dto = new ProjectDTO();
         ProjectDTO dto2 = new ProjectDTO();
@@ -63,8 +63,10 @@ public class JaxbUtilTest {
 
         TodoDTO todo = new TodoDTO();
         todo.setText("todo 1");
+        todo.setDueDate(LocalDateTime.now());
         TodoDTO todo2 = new TodoDTO();
         todo2.setText("todo 2");
+        todo2.setDueDate(LocalDateTime.now());
         dto.setTodos(Arrays.asList(todo, todo2));
 
         dtoList.setProjects(Arrays.asList(dto, dto2));
