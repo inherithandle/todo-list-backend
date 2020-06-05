@@ -9,9 +9,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,8 +27,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,6 +43,14 @@ public class TodoControllerTest {
 
     @MockBean
     private UserTokenRepository userTokenRepository;
+
+    @TestConfiguration
+    static class ModelMapperConfigTest {
+        @Bean
+        public ModelMapper modelMapper() {
+            return new ModelMapper();
+        }
+    }
 
     private String todoJson;
     private Cookie cookie;
@@ -102,5 +112,21 @@ public class TodoControllerTest {
                 .content(this.todoJson)
                 .cookie(cookie))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @Test
+    public void paging() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/page")
+                .param("page", "5")
+                .param("size", "10")
+                .param("sort", "id,desc")
+                .param("sort", "name,asc"))
+                .andReturn();
+    }
+
+    @Test
+    public void pagingWithoutQueryString() throws Exception {
+        mockMvc.perform(get("/page"))
+                .andExpect(status().isOk());
     }
 }

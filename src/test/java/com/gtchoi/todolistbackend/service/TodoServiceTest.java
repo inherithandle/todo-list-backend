@@ -4,6 +4,7 @@ import com.gtchoi.todolistbackend.config.ModelMapperConfig;
 import com.gtchoi.todolistbackend.entity.Project;
 import com.gtchoi.todolistbackend.entity.Todo;
 import com.gtchoi.todolistbackend.entity.User;
+import com.gtchoi.todolistbackend.exception.UnAuthorizedException;
 import com.gtchoi.todolistbackend.model.TodoDTO;
 import com.gtchoi.todolistbackend.repository.ProjectRepository;
 import com.gtchoi.todolistbackend.repository.TodoRepository;
@@ -17,8 +18,12 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -155,6 +160,70 @@ public class TodoServiceTest {
         givenAnotherUser();
 
         todoService.deleteTodo(this.todo.getId(), this.user2);
+    }
+
+    @Test
+    public void getPagedTodo() {
+        PageRequest page1 = PageRequest.of(0, 5);
+        PageRequest page2 = PageRequest.of(1, 5);
+        User user = userRepository.getOne(3L);
+        Page<Todo> pageTodos1 = todoService.getTodos(user, 4L, page1);
+        Page<Todo> pageTodos2 = todoService.getTodos(user, 4L, page2);
+
+        assertThat(pageTodos1.getTotalElements(), is(10L));
+        assertThat(pageTodos1.getNumberOfElements(), is(5));
+        assertThat(pageTodos1.getContent().get(0).getText(), is("todo 4 at page 0"));
+
+        assertThat(pageTodos2.getTotalElements(), is(10L));
+        assertThat(pageTodos2.getNumberOfElements(), is(5));
+        assertThat(pageTodos2.getContent().get(0).getText(), is("todo 5 at page 1"));
+    }
+
+    @Test
+    public void getPagedTodoWithSort() {
+        PageRequest page1 = PageRequest.of(0, 5, Sort.by(Sort.Order.desc("dueDate")));
+        PageRequest page2 = PageRequest.of(1, 5, Sort.by(Sort.Order.desc("dueDate")));
+        User user = userRepository.getOne(3L);
+        Page<Todo> pageTodos1 = todoService.getTodos(user, 4L, page1);
+        Page<Todo> pageTodos2 = todoService.getTodos(user, 4L, page2);
+
+        assertThat(pageTodos1.getTotalElements(), is(10L));
+        assertThat(pageTodos1.getNumberOfElements(), is(5));
+        assertThat(pageTodos1.getContent().get(0).getDueDate(), is(LocalDateTime.of(2023, 3, 29, 0, 0, 0)));
+
+        assertThat(pageTodos2.getTotalElements(), is(10L));
+        assertThat(pageTodos2.getNumberOfElements(), is(5));
+        assertThat(pageTodos2.getContent().get(0).getDueDate(), is(LocalDateTime.of(2023, 3, 12, 0, 0, 0)));
+    }
+
+    @Test(expected = UnAuthorizedException.class)
+    public void 유저A가_유저B의_TODO에_접근() {
+        PageRequest page = PageRequest.of(0, 10);
+        User user = userRepository.getOne(2L);
+        todoService.getTodos(user, 4L, page);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void 존재하지않는_Todo_접근() {
+        PageRequest page = PageRequest.of(0, 10);
+        User user = userRepository.getOne(2L);
+        todoService.getTodos(user, 404L, page);
+    }
+
+    @Test
+    public void concat() {
+        String s = "select * " +
+                "from (   " +
+                "    select *, dense_rank() OVER (ORDER BY post_id) rank " +
+                "    from (   " +
+                "        select p.*, pc.* " +
+                "        from post p  " +
+                "        left join post_comment pc on p.id = pc.post_id  " +
+                "        order by p.created_on " +
+                "    ) p_pc " +
+                ") p_pc_r " +
+                "where p_pc_r.rank <= :rank";
+        System.out.println(s);
     }
 
 }

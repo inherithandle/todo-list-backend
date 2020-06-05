@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +37,13 @@ public class ProjectController {
         ProjectDTOList projectDTOList = new ProjectDTOList();
         projectDTOList.setProjects(dtos);
         return ResponseEntity.ok(projectDTOList);
+    }
+
+    @GetMapping("/project-with-todos/{projectNo}")
+    public ResponseEntity<Page<ProjectDTO>> getProjectWithTodos(User user, Pageable pageable,
+                                                          @PathVariable("projectNo") long projectNo) {
+        Page<Project> pageProject = projectService.getProjectWithTodos(user, projectNo, pageable);
+        return ResponseEntity.ok(pageProject.map(project -> modelMapper.map(project, ProjectDTO.class)));
     }
 
     @PostMapping("/project")

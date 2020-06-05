@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,5 +65,23 @@ public class ProjectService {
             throw new NoSuchElementException();
         }
         return deleted;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Project> getProjectWithTodos(User user, long projectNo, Pageable pageable) {
+        // projectRepository.findByUserUserNoAndProjectNo(user.getUserNo, projectNo, pageable);
+        // return page<Project>
+        // if null... not authorized ..
+
+        // todo join project join user...
+
+
+        Page<Project> pageProject = projectRepository.getProjectWithTodos(user.getUserNo(), projectNo, pageable);
+
+        if (pageProject.getContent().get(0) == null) {
+            logger.error("not authorized.");
+            throw new RuntimeException();
+        }
+        return pageProject;
     }
 }
