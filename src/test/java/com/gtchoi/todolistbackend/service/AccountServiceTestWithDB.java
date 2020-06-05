@@ -50,6 +50,9 @@ public class AccountServiceTestWithDB {
     @MockBean
     GoogleSigninService googleSigninService;
 
+    @MockBean
+    SigninServiceFactory signinServiceFactory;
+
     @Autowired
     AccountService accountService;
 
