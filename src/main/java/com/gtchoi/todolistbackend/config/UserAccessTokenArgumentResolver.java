@@ -16,7 +16,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 @Component
 public class UserAccessTokenArgumentResolver implements HandlerMethodArgumentResolver {
@@ -41,12 +40,11 @@ public class UserAccessTokenArgumentResolver implements HandlerMethodArgumentRes
         }
 
         final String bearerToken = authHeader.substring(7);
-        Optional<UserToken> userToken = userTokenRepository.findById(bearerToken);
-        userToken.orElseThrow(() -> {
+        UserToken userToken = userTokenRepository.findByAccessToken(bearerToken).orElseThrow(() -> {
             logger.debug("token {} is not found in database.", bearerToken);
             return new UnAuthorizedException();
         });
 
-        return userToken.get().getUser();
+        return userToken.getUser();
     }
 }

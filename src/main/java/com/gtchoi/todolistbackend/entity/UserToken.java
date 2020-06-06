@@ -1,11 +1,17 @@
 package com.gtchoi.todolistbackend.entity;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 
 @Entity
 public class UserToken {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NaturalId
     private String accessToken;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -19,6 +25,14 @@ public class UserToken {
 
     public UserToken() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getAccessToken() {

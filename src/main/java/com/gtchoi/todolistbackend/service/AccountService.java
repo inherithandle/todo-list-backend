@@ -158,7 +158,8 @@ public class AccountService {
     public void deleteToken(User user, String accessToken) {
         UserToken userToken = userTokenRepository.findByAccessToken(accessToken).orElseThrow(UnAuthorizedException::new);
         if (userToken.getUser().getUserNo() == user.getUserNo()) {
-            userTokenRepository.delete(userToken);
+            int deleted = userTokenRepository.deleteUserTokenByAccessToken(userToken.getAccessToken());
+            logger.debug("{} tokens deleted.", deleted);
         } else {
             throw new UnAuthorizedException();
         }

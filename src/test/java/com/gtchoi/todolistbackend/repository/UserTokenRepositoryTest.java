@@ -48,7 +48,7 @@ public class UserTokenRepositoryTest {
 
     @Test
     public void findByToken() {
-        UserToken userToken = userTokenRepository.findById(ACCESS_TOKEN).get();
+        UserToken userToken = userTokenRepository.findByAccessToken(ACCESS_TOKEN).get();
 
         assertThat(userToken.getUser().getUserId(), is(USER_ID));
         assertThat(userToken.getUser().getPassword(), is(PASSWORD));
