@@ -20,6 +20,7 @@ back-end 서버는 amazon ec2 t2.nano로 호스팅합니다.
     git clone https://github.com/inherithandle/todo-list-backend.git
     cd todo-list-backend
     ./gradlew bootRun
+    http://localhost:8181/
 ```
 구글 로그인 기능을 사용하려면 본인의 google client id, client secret을 추가 해줘야 사용할 수 있습니다. application-oauth.properties에 추가해주세요.
 ### Stack
